@@ -1,4 +1,4 @@
-const TASK_ASSIGNING_SERVICE_SOLUTION_URL = "http://localhost:8383/task-assigning/service/solution";
+const TASK_ASSIGNING_SERVICE_SOLUTION_URL = "http://localhost:8380/task-assigning/service/solution";
 
 const skillToColorMap = new Map([
     ['EN', '#edd400'],
@@ -20,6 +20,9 @@ const groupToColorMap = new Map([
 
 const pinnedTaskColor = '#ebfadc';
 const waitingTaskColor = 'White';
+
+const userEnabledIcon = 'fa-user-alt';
+const userDisabledIcon = 'fa-user-slash';
 
 var autoRefreshIntervalId = null;
 var periodicRefreshStarted = false;
@@ -53,16 +56,26 @@ function printSolutionTable(taskAssigningSolution) {
 }
 
 function printUser(tableBody, user) {
+    //user.enabled is always a non null boolean in the user json data
+    const userIcon = user.enabled ? userEnabledIcon : userDisabledIcon;
+    //collect the user tasks from the chained model.
+    const userTasks = new Array();
+    var next = user.nextElement;
+    while (next != null) {
+        userTasks.push(next);
+        next = next.nextElement;
+    }
+
     const tableRow = $('<tr class="agent-row">').appendTo(tableBody);
-    const td = $('<td>').appendTo(tableRow);
+    const td = $('<td style="width:15%;">').appendTo(tableRow);
     const userCard = $('<div class="card" style="background-color:#f7ecd5">').appendTo(td);
     const userCardBody = $('<div class="card-body p-1">').appendTo(userCard);
     const userCardRow = $(`<div class="row flex-nowrap">
                 <div class="col-1">
-                    <i class="fas fa-user-alt"></i>
+                    <i class="fas ${userIcon}"></i>
                 </div>
                 <div class="col-11">
-                    <span style="font-size:1.2em">${user.id}</span>
+                    <span style="font-size:1.2em" title="${userTasks.length} assigned tasks")}>${user.id}&nbsp;&nbsp;(${userTasks.length})</span>
                 </div>
         </div>`).appendTo(userCardBody);
 
@@ -83,13 +96,6 @@ function printUser(tableBody, user) {
 
     const tasksTd = $('<td style="flex-flow:row; display: flex;">').appendTo(tableRow);
 
-    //collect the user tasks from the chained model.
-    const userTasks = new Array();
-    var next = user.nextElement;
-    while (next != null) {
-        userTasks.push(next);
-        next = next.nextElement;
-    }
     userTasks.forEach(task => {
         printTask(tasksTd, task)
     });
