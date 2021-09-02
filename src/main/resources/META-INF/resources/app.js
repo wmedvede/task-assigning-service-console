@@ -1,21 +1,24 @@
 const TASK_ASSIGNING_SERVICE_SOLUTION_URL = "http://localhost:8380/task-assigning/service/solution";
+const DUMMY_TASK_PREFIX = "dummy-task";
 
 const skillToColorMap = new Map([
-    ['EN', '#edd400'],
-    ['ES', '#ef2929'],
-    ['DE', '#e9b96e'],
-    ['javascript', '#ad7fa8'],
-    ['java', '#729fcf'],
-    ['ada', '#73d216']
+    ['English', '#add8e6'],
+    // ['Spanish', '#ef2929'],
+    ['Spanish', '#ff7f7f'],
+    ['German', '#d3d3d3'],
+    // ['German', '#e9b96e'],
+    ['Visa', '#ad7fa8'],
+    // ['Master', '#729fcf'],
+    ['Master', '#ffc0cb'],
+    ['Citi', '#73d216']
 ]);
 
 const groupToColorMap = new Map([
     ['managers', '#edd400'],
-    ['interns', '#ef2929'],
+    ['interns', '#ffff00'],
     ['employees', '#e9b96e'],
-    ['Car insurance', '#ad7fa8'],
-    ['Property insurance', '#729fcf'],
-    ['Life insurance', '#73d216']
+    ['CreditAnalyst', '#ffffff'],
+    ['ClientRelations', '#729fcf']
 ]);
 
 const pinnedTaskColor = '#ebfadc';
@@ -55,6 +58,10 @@ function printSolutionTable(taskAssigningSolution) {
     });
 }
 
+function isDummyTask(taskAssignment) {
+    return taskAssignment.task.name.startsWith(DUMMY_TASK_PREFIX)
+}
+
 function printUser(tableBody, user) {
     //user.enabled is always a non null boolean in the user json data
     const userIcon = user.enabled ? userEnabledIcon : userDisabledIcon;
@@ -62,7 +69,9 @@ function printUser(tableBody, user) {
     const userTasks = new Array();
     var next = user.nextElement;
     while (next != null) {
-        userTasks.push(next);
+        if (!isDummyTask(next)) {
+            userTasks.push(next);
+        }
         next = next.nextElement;
     }
 
@@ -75,7 +84,7 @@ function printUser(tableBody, user) {
                     <i class="fas ${userIcon}"></i>
                 </div>
                 <div class="col-11">
-                    <span style="font-size:1.2em" title="${userTasks.length} assigned tasks")}>${user.id}&nbsp;&nbsp;(${userTasks.length})</span>
+                    <span style="font-size:1em" title="${userTasks.length} assigned tasks")}>${user.id}&nbsp;&nbsp;(${userTasks.length})</span>
                 </div>
         </div>`).appendTo(userCardBody);
 
@@ -103,14 +112,14 @@ function printUser(tableBody, user) {
 
 function printTask(callsTd, taskAssignment) {
     //trim original task id in the format "5cffa1a2-d907-4b2e-9291-370a66dd41ca"  to "5cffa1a2"
-    const taskId = taskAssignment.id.substring(0, 8)
+    const taskId = taskAssignment.id.substring(0, 5)
     const taskColor = (taskAssignment.pinned) ? pinnedTaskColor : waitingTaskColor;
     const taskCard = $(`<div class="card" style="float:left; background-color: ${taskColor}"/>`).appendTo(callsTd);
     const pinIcon = (taskAssignment.pinned) ? '<i class="fas fa-thumbtack"></i>' : '';
 
     const taskCardContainer = $('<div class="card-body">').appendTo(taskCard);
-    taskCardContainer.append($(`<h5 class="card-title" style="padding-right:0px">${taskId}</h5>`));
-    taskCardContainer.append($(`<h5 class="card-title" style="padding-right:0px">${taskAssignment.task.name}</h5>`));
+    taskCardContainer.append($(`<h6 class="card-title" style="padding-right:0px">${taskId}</h6>`));
+    taskCardContainer.append($(`<h6 class="card-title" style="padding-right:0px">${taskAssignment.task.name}</h6>`));
     taskCardContainer.append($(`<p class="card-title" style="padding-right:0px">${taskAssignment.task.processId}</p>`));
     taskCardContainer.append($(`<p class="card-text" style="padding-right:0px">${taskAssignment.task.state}</p>`));
 
