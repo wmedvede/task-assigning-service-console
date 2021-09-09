@@ -256,4 +256,6 @@ $(document).ready(function () {
     //Initial solution loading
     refreshSolution();
 
+    $("#stopPeriodicRefreshButton").hide();
+
 });
